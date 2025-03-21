@@ -39,7 +39,7 @@ adminRouter.post("/login", async function (req, res) {
   if (admin) {
     const token = jwt.sign(
       {
-        id: user_id,
+        id: admin._id,
       },
       JWT_ADMIN_PASSWORD
     );
@@ -57,7 +57,7 @@ adminRouter.post("/course", adminMiddleware, async function (req, res) {
 
   const { title, desc, imageUrl, price } = req.body;
 
-  await CourseModel.create({
+  const course = await CourseModel.create({
     title,
     desc,
     imageUrl,
@@ -67,13 +67,14 @@ adminRouter.post("/course", adminMiddleware, async function (req, res) {
 
   res.json({
     message: "Course created",
+    courseId: course._id,
   });
 });
 
 adminRouter.put("/course", adminMiddleware, async function (req, res) {
   const adminId = req.userId;
 
-  const { title, desc, imageUrl, price } = req.body;
+  const { title, desc, imageUrl, price, courseId } = req.body;
 
   const course = await CourseModel.updateOne(
     { _id: courseId, creatorId: adminId },
