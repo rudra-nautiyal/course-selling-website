@@ -1,7 +1,7 @@
 const { Router } = require("express");
-const { AdminModel } = require("../db");
+const { AdminModel, CourseModel } = require("../db");
 const jwt = require("jsonwebtoken");
-const JWT_ADMIN_PASSWORD = "admin_s3cret";
+const { JWT_ADMIN_PASSWORD } = require("../config");
 
 const adminRouter = Router();
 
@@ -24,6 +24,7 @@ adminRouter.post("/signup", async function (req, res) {
     message: "You have signed up.",
   });
 });
+
 adminRouter.post("/login", async function (req, res) {
   const { email, password } = req.body;
 
@@ -50,7 +51,23 @@ adminRouter.post("/login", async function (req, res) {
   }
 });
 
-adminRouter.post("/course", function (req, res) {});
+adminRouter.post("/course", adminMiddleware, async function (req, res) {
+  const { title, desc, imageUrl, price, creatorId } = req.body;
+
+  const course = await CourseModel.create({
+    title,
+    desc,
+    imageUrl,
+    price,
+    creatorId,
+  });
+
+  res.json({
+    message: "Course created",
+    courseId: course._id,
+  });
+});
+
 adminRouter.put("/course", function (req, res) {});
 adminRouter.get("/course/bulk", function (req, res) {});
 
