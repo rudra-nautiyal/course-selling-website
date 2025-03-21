@@ -1,7 +1,8 @@
 const { Router } = require("express");
-const { UserModel } = require("../db");
+const { UserModel, PurchaseModel } = require("../db");
 const jwt = require("jsonwebtoken");
 const { JWT_USER_PASSWORD } = require("../config");
+const { userMiddleware } = require("../middleware/user");
 
 const userRouter = Router();
 
@@ -50,7 +51,16 @@ userRouter.post("/login", async function (req, res) {
     res.status(403).json("Incorrect Credentials");
   }
 });
-userRouter.get("/courses", function (req, res) {});
+
+userRouter.get("/courses", userMiddleware, async function (req, res) {
+  const userId = req.userId;
+
+  const purchases = await PurchaseModel.find({ userId });
+
+  res.json({
+    purchases,
+  });
+});
 
 module.exports = {
   userRouter: userRouter,
